@@ -49,16 +49,33 @@ $(function () {
   $("#logoutBtn").on("click", function () { Store.setAdmin(false); showView(); toast("Logged out"); });
 
   /* ---------- list ---------- */
+  // choose a value in a drop-down; if it is no longer in the list (renamed / removed), keep it as an option
+  function setSel($sel, value, label) {
+    if (value == null || value === "") { $sel.val(""); return; }
+    if (!$sel.find("option").filter(function () { return this.value === String(value); }).length) {
+      $sel.append($("<option>").val(value).text(label || value));
+    }
+    $sel.val(value);
+  }
+  function cmpGrade(a, b) {
+    var x = parseFloat(a), y = parseFloat(b), nx = isNaN(x), ny = isNaN(y);
+    if (nx && ny) return String(a).localeCompare(String(b));
+    if (nx) return -1;
+    if (ny) return 1;
+    return x - y;
+  }
+
   function fillSelects() {
     CATS = window.CATEGORIES;
     var keep = { f: $("#docCategory").val(), g: $("#docGradeFilter").val(), y: $("#docYearFilter").val() };
     var cats = CATS.map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.id) + "</option>"; }).join("");
-    $("#docCat").html(cats);
     $("#docCategory").html('<option value="all">All subjects</option>' + cats);
-    var grades = window.GRADES.map(function (g) { return '<option value="' + g + '">Class ' + g + "</option>"; }).join("");
-    var years = window.YEARS.map(function (y) { return '<option value="' + y + '">' + y + "</option>"; }).join("");
-    $("#docGrade").html(grades);
-    $("#docYear").html(years).val(window.CURRENT_YEAR);
+    var grades = window.GRADES.map(function (g) { return '<option value="' + esc(g) + '">Class ' + esc(g) + "</option>"; }).join("");
+    var years = window.YEARS.map(function (y) { return '<option value="' + esc(y) + '">' + esc(y) + "</option>"; }).join("");
+    // the form's drop-downs start on "Select..." so nothing is picked by accident
+    $("#docCat").html('<option value="" disabled selected>Select subject</option>' + cats);
+    $("#docGrade").html('<option value="" disabled selected>Select class</option>' + grades);
+    $("#docYear").html('<option value="" disabled>Select year</option>' + years).val(window.CURRENT_YEAR);
     $("#docGradeFilter").html('<option value="all">All classes</option>' + grades);
     $("#docYearFilter").html('<option value="all">All years</option>' + years);
     $("#docCategory").val(keep.f || "all"); $("#docGradeFilter").val(keep.g || "all"); $("#docYearFilter").val(keep.y || "all");
@@ -132,8 +149,13 @@ $(function () {
     $("#fileLabelText").text(editing ? "Replace PDF (optional)" : "PDF file");
     $("#docFile").prop("required", !editing);
     if (editing) {
-      $("#docName").val(book.title); $("#docCat").val(book.category);
-      $("#docGrade").val(book.grade); $("#docYear").val(book.year); $("#docDesc").val(book.desc);
+      $("#docName").val(book.title); $("#docDesc").val(book.desc);
+      setSel($("#docCat"), book.category);
+      setSel($("#docGrade"), book.grade, "Class " + book.grade);
+      setSel($("#docYear"), book.year);
+    } else {
+      // a new document: subject and class must be chosen, year defaults to the current one
+      $("#docCat").val(""); $("#docGrade").val(""); $("#docYear").val(window.CURRENT_YEAR);
     }
     openModal();
     setTimeout(function () { $(editing ? "#docName" : "#docFile").focus(); }, 50);
@@ -292,6 +314,8 @@ $(function () {
     var L = currentLists();
     var value = kind === "subjects" ? { id: name, icon: $("#itemIcon").val() || "book-open", color: $("#itemColor").val() } : name;
     if (idx >= 0) L[kind][idx] = value; else L[kind].push(value);
+    if (kind === "grades") L.grades.sort(cmpGrade);
+    if (kind === "years") L.years.sort();
 
     var job = Store.saveLists(L);
     if (idx >= 0 && oldName !== name) job = job.then(function () { return Store.renameValue(k.field, oldName, name); });

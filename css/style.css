@@ -177,10 +177,6 @@ select, input[type=text], input[type=password], input[type=file] {
 .step h3 { font-size: 1.2rem; margin-bottom: 4px; }
 .step p { margin: 0; color: var(--muted); }
 
-  border: 0; padding: 0; background: #fff; border-radius: var(--radius); overflow: hidden;
-  box-shadow: var(--shadow); cursor: zoom-in; text-align: left; transition: transform .2s;
-}
-
 /* ===== Footer ===== */
 .site-footer { background: var(--blue-dark); color: #dfe9ff; text-align: center; padding: 30px 0; }
 .site-footer img { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 8px; }
@@ -480,3 +476,30 @@ input[type=color] { height: 44px; padding: 4px; cursor: pointer; }
 .legal a { color: var(--blue); }
 .todo { background: #fff3cd; color: #5c4400; padding: 1px 8px; border-radius: 6px; font-weight: 700; }
 @media (max-width: 520px) { .legal { padding: 22px 16px; border-radius: 14px; } .cookie-actions { width: 100%; } .cookie-actions .btn { flex: 1; } }
+
+/* ===== Responsive fixes (checked in a real browser) ===== */
+.badge.year { top: auto; bottom: 10px; right: 10px; }
+.book-actions .btn { min-width: 0; }
+@media (max-width: 520px) {
+  .book-actions .btn .ic { display: none; }
+  .book-actions .btn { padding: 9px 2px; font-size: .82rem; }
+}
+.book-actions { margin-top: auto; }
+@media (max-width: 860px) { .steps { grid-template-columns: 1fr 1fr; } }
+.legal table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media (max-width: 600px) { .legal th, .legal td { padding: 6px 8px; font-size: .88rem; } }
+.admin-nav a, .admin-nav .btn { white-space: nowrap; }
+@media (max-width: 520px) {
+  .admin-nav .nav-text { display: none; }
+  .admin-nav a { padding: 10px; }
+  .admin-nav .btn { padding: 8px 12px; }
+  .admin-nav { gap: 4px; }
+}
+@media (max-width: 520px) {
+  .reader-bar { gap: 8px; padding: 6px 10px; }
+  .reader-bar > #rClose { order: 0; } .reader-bar .reader-title { order: 1; flex: 1 1 0; }
+  .reader-bar > #rDownload { order: 2; padding: 8px 12px; }
+  .reader-bar .reader-nav { order: 3; } .reader-bar .reader-zoom { order: 4; margin-left: auto; }
+  .reader-bar .reader-search { order: 5; }
+  #rDownload .nav-text { display: none; }
+}

@@ -60,12 +60,12 @@ $(function () {
   function renderGrade() {
     var keep = state.grade;
     var html = '<option value="all">All classes</option>';
-    window.GRADES.forEach(function (g) { html += '<option value="' + g + '">Class ' + g + "</option>"; });
+    window.GRADES.forEach(function (g) { html += '<option value="' + esc(g) + '">Class ' + esc(g) + "</option>"; });
     $("#gradeFilter").html(html).val(keep);
   }
   function renderYear() {
     var html = '<option value="all">All years</option>';
-    window.YEARS.forEach(function (y) { html += '<option value="' + y + '">' + y + "</option>"; });
+    window.YEARS.forEach(function (y) { html += '<option value="' + esc(y) + '">' + esc(y) + "</option>"; });
     $("#yearFilter").html(html).val(state.year);
   }
   function matches(b) {
