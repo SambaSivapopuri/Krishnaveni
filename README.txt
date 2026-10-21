@@ -18,6 +18,7 @@ ADD A BOOK FOR EVERYONE
 
 ADMIN (admin.html)
   Add / edit / delete documents, subjects, classes and years.
+  Years -> Classes -> Subjects are linked: a class belongs to chosen years, a subject to chosen classes.
   Admin changes are saved in that browser only (IndexedDB).
 
 FOLDERS

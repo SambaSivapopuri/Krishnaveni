@@ -41,7 +41,7 @@
      window.CATEGORIES, window.GRADES and window.YEARS (defaults come from books.js). */
   var DEFAULTS = null;
   function applyLists(L) {
-    w.CATEGORIES = L.subjects; w.GRADES = L.grades; w.YEARS = L.years;
+    w.CATEGORIES = L.subjects; w.GRADES = L.grades; w.YEARS = L.years; w.GRADE_YEARS = L.gradeYears || {};
     if (L.years.indexOf(w.CURRENT_YEAR) === -1) w.CURRENT_YEAR = L.years[L.years.length - 1] || "";
   }
 
@@ -50,19 +50,35 @@
 
     /* ----- lists: subjects, classes, years ----- */
     loadLists: function () {
-      if (!DEFAULTS) DEFAULTS = JSON.parse(JSON.stringify({ subjects: w.CATEGORIES, grades: w.GRADES, years: w.YEARS }));
+      if (!DEFAULTS) DEFAULTS = JSON.parse(JSON.stringify({ subjects: w.CATEGORIES, grades: w.GRADES, years: w.YEARS, gradeYears: {} }));
       return run("meta", "readonly", function (s) { return s.get("cfg-lists"); })
         .catch(function () { return null; })
         .then(function (rec) {
-          var L = rec ? { subjects: rec.subjects, grades: rec.grades, years: rec.years } : JSON.parse(JSON.stringify(DEFAULTS));
+          var L = rec ? { subjects: rec.subjects, grades: rec.grades, years: rec.years, gradeYears: rec.gradeYears || {} } : JSON.parse(JSON.stringify(DEFAULTS));
           applyLists(L);
           return L;
         });
     },
     saveLists: function (L) {
-      var rec = { id: "cfg-lists", subjects: L.subjects, grades: L.grades, years: L.years };
+      var rec = { id: "cfg-lists", subjects: L.subjects, grades: L.grades, years: L.years, gradeYears: L.gradeYears || {} };
       return run("meta", "readwrite", function (s) { return s.put(rec); }).then(function () { applyLists(L); return L; });
     },
+    /* ----- relations: Year -> Class -> Subject -----
+       A class belongs to some years (GRADE_YEARS); a subject belongs to some classes (subject.grades).
+       Nothing mapped yet means "available everywhere", so older data keeps working. */
+    gradesFor: function (year) {
+      return w.GRADES.filter(function (g) {
+        var m = w.GRADE_YEARS[g];
+        return !year || !m || m.indexOf(year) !== -1;
+      });
+    },
+    subjectsFor: function (year, grade) {
+      var gs = grade ? [grade] : (year ? Store.gradesFor(year) : null);
+      return w.CATEGORIES.filter(function (c) {
+        return !gs || !c.grades || c.grades.some(function (g) { return gs.indexOf(g) !== -1; });
+      });
+    },
+
     // rename a value everywhere it is used (uploads and built-in books)
     // kind: "category" | "grade" | "year"
     renameValue: function (kind, oldV, newV) {

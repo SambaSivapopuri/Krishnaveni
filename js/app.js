@@ -37,8 +37,7 @@ $(function () {
     return Store.getBooks().then(function (list) {
       allBooks = list;
       renderStats();
-      renderGrade();
-      renderYear();
+      renderFilters();
       renderBooks();
     });
   }
@@ -50,24 +49,30 @@ $(function () {
     $("#statBooks").text(allBooks.length);
     $("#statCats").text(Object.keys(cats).length);
   }
-  function renderChips() {
-    var html = '<button class="chip active" data-cat="all" type="button" aria-pressed="true">' + ic("grid") + ' All</button>';
-    CATS.forEach(function (c) {
-      html += '<button class="chip" data-cat="' + esc(c.id) + '" type="button" aria-pressed="false">' + ic(c.icon) + " " + esc(c.id) + "</button>";
-    });
-    $("#categoryChips").html(html);
-  }
-  function renderGrade() {
-    var keep = state.grade;
-    var html = '<option value="all">All classes</option>';
-    window.GRADES.forEach(function (g) { html += '<option value="' + esc(g) + '">Class ' + esc(g) + "</option>"; });
-    $("#gradeFilter").html(html).val(keep);
-  }
+  /* Filters are linked: Year -> Class -> Subject. Each one only offers what belongs to the choice before it. */
   function renderYear() {
     var html = '<option value="all">All years</option>';
     window.YEARS.forEach(function (y) { html += '<option value="' + esc(y) + '">' + esc(y) + "</option>"; });
     $("#yearFilter").html(html).val(state.year);
   }
+  function renderGrade() {
+    var list = Store.gradesFor(state.year === "all" ? null : state.year);
+    if (state.grade !== "all" && list.indexOf(state.grade) === -1) state.grade = "all";
+    var html = '<option value="all">All classes</option>';
+    list.forEach(function (g) { html += '<option value="' + esc(g) + '">Class ' + esc(g) + "</option>"; });
+    $("#gradeFilter").html(html).val(state.grade);
+  }
+  function renderChips() {
+    var subs = Store.subjectsFor(state.year === "all" ? null : state.year, state.grade === "all" ? null : state.grade);
+    if (state.category !== "all" && !subs.some(function (c) { return c.id === state.category; })) state.category = "all";
+    var on = function (id) { return state.category === id; };
+    var html = '<button class="chip' + (on("all") ? " active" : "") + '" data-cat="all" type="button" aria-pressed="' + on("all") + '">' + ic("grid") + " All</button>";
+    subs.forEach(function (c) {
+      html += '<button class="chip' + (on(c.id) ? " active" : "") + '" data-cat="' + esc(c.id) + '" type="button" aria-pressed="' + on(c.id) + '">' + ic(c.icon) + " " + esc(c.id) + "</button>";
+    });
+    $("#categoryChips").html(html);
+  }
+  function renderFilters() { renderYear(); renderGrade(); renderChips(); }
   function matches(b) {
     if (state.category !== "all" && b.category !== state.category) return false;
     if (state.grade !== "all" && b.grade !== state.grade) return false;
@@ -105,8 +110,8 @@ $(function () {
     state.category = $(this).data("cat");
     renderBooks();
   });
-  $("#yearFilter").on("change", function () { state.year = this.value; renderBooks(); });
-  $("#gradeFilter").on("change", function () { state.grade = this.value; renderBooks(); });
+  $("#yearFilter").on("change", function () { state.year = this.value; renderGrade(); renderChips(); renderBooks(); });
+  $("#gradeFilter").on("change", function () { state.grade = this.value; renderChips(); renderBooks(); });
   // hero search box and library search box stay in sync
   function setQuery(q, from) {
     state.query = $.trim(q);
@@ -374,7 +379,6 @@ $(function () {
   $("#year").text(new Date().getFullYear());
   Store.loadLists().then(function () {
     CATS = window.CATEGORIES;
-    renderChips();
     return loadBooks();
   });
 });

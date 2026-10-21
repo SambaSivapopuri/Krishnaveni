@@ -65,6 +65,32 @@ $(function () {
     return x - y;
   }
 
+  /* Year -> Class -> Subject: each drop-down only offers what is linked to the one before it.
+     `origin` is the document being edited, so its saved values stay selectable. */
+  var origin = null;
+  function optionList(items, label) {
+    return items.map(function (v) { return '<option value="' + esc(v) + '">' + esc(label ? label(v) : v) + "</option>"; }).join("");
+  }
+  function fillClassOptions(wantGrade, wantCat) {
+    var y = $("#docYear").val();
+    var cur = wantGrade !== undefined ? wantGrade : $("#docGrade").val();
+    var list = y ? Store.gradesFor(y) : [];
+    $("#docGrade").html('<option value="" disabled selected>' + (y ? "Select class" : "Select year first") + "</option>" +
+      optionList(list, function (g) { return "Class " + g; })).prop("disabled", !y);
+    if (cur && (list.indexOf(cur) !== -1 || (origin && origin.grade === cur))) setSel($("#docGrade"), cur, "Class " + cur);
+    fillSubjectOptions(wantCat);
+  }
+  function fillSubjectOptions(wantCat) {
+    var g = $("#docGrade").val();
+    var cur = wantCat !== undefined ? wantCat : $("#docCat").val();
+    var list = g ? Store.subjectsFor(null, g).map(function (c) { return c.id; }) : [];
+    $("#docCat").html('<option value="" disabled selected>' + (g ? "Select subject" : "Select class first") + "</option>" +
+      optionList(list)).prop("disabled", !g);
+    if (cur && (list.indexOf(cur) !== -1 || (origin && origin.category === cur))) setSel($("#docCat"), cur);
+  }
+  $("#docYear").on("change", function () { fillClassOptions(); });
+  $("#docGrade").on("change", function () { fillSubjectOptions(); });
+
   function fillSelects() {
     CATS = window.CATEGORIES;
     var keep = { f: $("#docCategory").val(), g: $("#docGradeFilter").val(), y: $("#docYearFilter").val() };
@@ -73,9 +99,8 @@ $(function () {
     var grades = window.GRADES.map(function (g) { return '<option value="' + esc(g) + '">Class ' + esc(g) + "</option>"; }).join("");
     var years = window.YEARS.map(function (y) { return '<option value="' + esc(y) + '">' + esc(y) + "</option>"; }).join("");
     // the form's drop-downs start on "Select..." so nothing is picked by accident
-    $("#docCat").html('<option value="" disabled selected>Select subject</option>' + cats);
-    $("#docGrade").html('<option value="" disabled selected>Select class</option>' + grades);
-    $("#docYear").html('<option value="" disabled>Select year</option>' + years).val(window.CURRENT_YEAR);
+    $("#docYear").html('<option value="" disabled>Select year</option>' + years).val(window.CURRENT_YEAR || "");
+    fillClassOptions("", "");
     $("#docGradeFilter").html('<option value="all">All classes</option>' + grades);
     $("#docYearFilter").html('<option value="all">All years</option>' + years);
     $("#docCategory").val(keep.f || "all"); $("#docGradeFilter").val(keep.g || "all"); $("#docYearFilter").val(keep.y || "all");
@@ -148,14 +173,15 @@ $(function () {
     $("#builtinNote").toggleClass("hidden", !builtin);
     $("#fileLabelText").text(editing ? "Replace PDF (optional)" : "PDF file");
     $("#docFile").prop("required", !editing);
+    origin = editing ? book : null;
     if (editing) {
       $("#docName").val(book.title); $("#docDesc").val(book.desc);
-      setSel($("#docCat"), book.category);
-      setSel($("#docGrade"), book.grade, "Class " + book.grade);
       setSel($("#docYear"), book.year);
+      fillClassOptions(book.grade, book.category);
     } else {
-      // a new document: subject and class must be chosen, year defaults to the current one
-      $("#docCat").val(""); $("#docGrade").val(""); $("#docYear").val(window.CURRENT_YEAR);
+      // a new document: the year defaults to the current one, then class and subject must be chosen
+      $("#docYear").val(window.CURRENT_YEAR || "");
+      fillClassOptions("", "");
     }
     openModal();
     setTimeout(function () { $(editing ? "#docName" : "#docFile").focus(); }, 50);
@@ -246,7 +272,24 @@ $(function () {
   }
   function nameOf(kind, it) { return kind === "subjects" ? it.id : it; }
   function currentLists() {
-    return { subjects: window.CATEGORIES.slice(), grades: window.GRADES.slice(), years: window.YEARS.slice() };
+    return {
+      subjects: JSON.parse(JSON.stringify(window.CATEGORIES)), grades: window.GRADES.slice(), years: window.YEARS.slice(),
+      gradeYears: JSON.parse(JSON.stringify(window.GRADE_YEARS || {}))
+    };
+  }
+
+  function relationText(kind, it) {
+    var all = window.GRADES.length, ally = window.YEARS.length, list;
+    if (kind === "subjects") {
+      list = it.grades;
+      return !list || list.length === all ? "All classes" : (list.length ? "Classes: " + list.join(", ") : "No class linked");
+    }
+    if (kind === "grades") {
+      list = window.GRADE_YEARS[it];
+      return !list || list.length === ally ? "All years" : (list.length ? "Years: " + list.join(", ") : "No year linked");
+    }
+    var n = Store.gradesFor(it).length;
+    return n + (n === 1 ? " class" : " classes");
   }
 
   function renderLists() {
@@ -260,7 +303,7 @@ $(function () {
           var lead = kind === "subjects"
             ? '<span class="swatch" style="background:' + esc(it.color) + '">' + ic(it.icon) + "</span>" : "";
           return "<li>" + lead + '<div class="item-name"><b>' + esc(kind === "grades" ? "Class " + name : name) + "</b><small>" +
-            used + (used === 1 ? " document" : " documents") + "</small></div>" +
+            used + (used === 1 ? " document" : " documents") + "</small><small>" + esc(relationText(kind, it)) + "</small></div>" +
             '<button class="icon-btn item-edit" data-kind="' + kind + '" data-i="' + i + '" title="Edit" aria-label="Edit" type="button">' + ic("edit") + "</button>" +
             '<button class="icon-btn icon-danger item-del" data-kind="' + kind + '" data-i="' + i + '" data-used="' + used + '" title="Delete" aria-label="Delete" type="button">' + ic("trash") + "</button></li>";
         }).join(""));
@@ -284,6 +327,19 @@ $(function () {
     }).join(""));
     $("#itemColor").val(cur && kind === "subjects" ? cur.color : "#2a6fdb");
     $("#subjectExtras").toggleClass("hidden", kind !== "subjects");
+    // relation: a subject is linked to classes, a class is linked to years
+    $("#mapWrap").toggleClass("hidden", kind === "years");
+    if (kind !== "years") {
+      var opts = kind === "subjects" ? window.GRADES : window.YEARS;
+      var chosen = kind === "subjects"
+        ? (cur && cur.grades ? cur.grades : opts)
+        : (cur ? (window.GRADE_YEARS[cur] || opts) : (window.CURRENT_YEAR ? [window.CURRENT_YEAR] : opts));
+      $("#mapLabel").text(kind === "subjects" ? "Available for classes" : "Available in years");
+      $("#mapGroup").html(opts.map(function (o) {
+        return '<label class="chk"><input type="checkbox" value="' + esc(o) + '"' + (chosen.indexOf(o) !== -1 ? " checked" : "") +
+          "><span>" + esc(kind === "subjects" ? "Class " + o : o) + "</span></label>";
+      }).join(""));
+    }
     $("#itemMsg").attr("class", "form-msg").text("");
     $("#itemModal").removeClass("hidden"); $("body").css("overflow", "hidden");
     setTimeout(function () { $("#itemName").focus(); }, 50);
@@ -296,6 +352,8 @@ $(function () {
     $(this).addClass("selected").attr("aria-checked", "true");
     $("#itemIcon").val($(this).data("icon"));
   });
+  $("#mapAll").on("click", function () { $("#mapGroup input").prop("checked", true); });
+  $("#mapNone").on("click", function () { $("#mapGroup input").prop("checked", false); });
   $("#tabLists").on("click", ".add-item", function () { openItem($(this).data("kind"), -1); });
   $("#tabLists").on("click", ".item-edit", function () { openItem($(this).data("kind"), +$(this).data("i")); });
 
@@ -311,8 +369,24 @@ $(function () {
     var dup = items.some(function (it, i) { return i !== idx && String(nameOf(kind, it)).toLowerCase() === name.toLowerCase(); });
     if (dup) { $msg.attr("class", "form-msg error").text("That " + k.label.toLowerCase() + " already exists."); return; }
 
+    var mapped = $("#mapGroup input:checked").map(function () { return this.value; }).get();
+    if (kind !== "years" && !mapped.length) {
+      $msg.attr("class", "form-msg error").text("Pick at least one " + (kind === "subjects" ? "class" : "year") + " for this " + k.label.toLowerCase() + ".");
+      return;
+    }
+
     var L = currentLists();
-    var value = kind === "subjects" ? { id: name, icon: $("#itemIcon").val() || "book-open", color: $("#itemColor").val() } : name;
+    var value = kind === "subjects" ? { id: name, icon: $("#itemIcon").val() || "book-open", color: $("#itemColor").val(), grades: mapped } : name;
+    if (kind === "grades") L.gradeYears[name] = mapped;
+    if (idx >= 0 && oldName !== name) {
+      if (kind === "grades") {
+        if (oldName !== name) delete L.gradeYears[oldName];
+        L.subjects.forEach(function (c) { if (c.grades) c.grades = c.grades.map(function (g) { return g === oldName ? name : g; }); });
+      }
+      if (kind === "years") {
+        Object.keys(L.gradeYears).forEach(function (g) { L.gradeYears[g] = L.gradeYears[g].map(function (y) { return y === oldName ? name : y; }); });
+      }
+    }
     if (idx >= 0) L[kind][idx] = value; else L[kind].push(value);
     if (kind === "grades") L.grades.sort(cmpGrade);
     if (kind === "years") L.years.sort();
@@ -340,6 +414,13 @@ $(function () {
     if (!window.confirm("Delete " + k.label.toLowerCase() + ' "' + name + '"?')) return;
     var L = currentLists();
     L[kind].splice(i, 1);
+    if (kind === "grades") {
+      delete L.gradeYears[name];
+      L.subjects.forEach(function (c) { if (c.grades) c.grades = c.grades.filter(function (g) { return g !== name; }); });
+    }
+    if (kind === "years") {
+      Object.keys(L.gradeYears).forEach(function (g) { L.gradeYears[g] = L.gradeYears[g].filter(function (y) { return y !== name; }); });
+    }
     Store.saveLists(L).then(function () { toast(k.label + " deleted"); fillSelects(); renderLists(); });
   });
 

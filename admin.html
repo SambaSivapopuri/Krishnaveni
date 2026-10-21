@@ -179,16 +179,17 @@
         <input type="text" id="docName" maxlength="80" placeholder="e.g. Class 6 Science Chapter 1" required>
       </label>
       <div class="two-col three">
-        <label>Subject
-          <select id="docCat" required></select>
+        <label>Year
+          <select id="docYear" required></select>
         </label>
         <label>Class
           <select id="docGrade" required></select>
         </label>
-        <label>Year
-          <select id="docYear" required></select>
+        <label>Subject
+          <select id="docCat" required></select>
         </label>
       </div>
+      <p class="muted small-note">Choose the year first, then the class, then the subject. Each list only shows what is linked to your choice.</p>
       <label>Short description <small>(optional)</small>
         <input type="text" id="docDesc" maxlength="140" placeholder="What is this book about?">
       </label>
@@ -221,6 +222,14 @@
         <label>Colour <small>(optional)</small>
           <input type="color" id="itemColor" value="#2a6fdb">
         </label>
+      </div>
+      <div id="mapWrap" class="hidden">
+        <div class="field-label"><span id="mapLabel">Available for</span> <small>(pick at least one)</small></div>
+        <div class="map-tools">
+          <button type="button" class="link-btn dark" id="mapAll">Select all</button>
+          <button type="button" class="link-btn dark" id="mapNone">Clear</button>
+        </div>
+        <div class="check-grid" id="mapGroup"></div>
       </div>
       <p class="form-msg" id="itemMsg" role="alert"></p>
       <div class="form-actions">

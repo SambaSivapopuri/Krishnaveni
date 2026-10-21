@@ -522,3 +522,15 @@ input[type=color] { width: 100%; }
 @media (max-width: 520px) { .form-actions .btn-ghost { flex: 0 0 auto; padding-inline: 18px; } .form-actions .btn-primary { flex: 1; white-space: nowrap; } }
 .doc-table td:nth-child(n+2):not(.td-actions), .pill { white-space: nowrap; }
 @media (max-width: 900px) and (min-width: 721px) { .doc-table th, .doc-table td { padding: 10px 8px; } .doc-table td small { max-width: 220px; } }
+
+/* Relation check-boxes (subject -> classes, class -> years) */
+.map-tools { display: flex; gap: 16px; margin-bottom: 8px; }
+.link-btn.dark { color: var(--blue); font: 800 .9rem "Nunito", sans-serif; }
+.check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.modal form label.chk { display: flex; align-items: center; gap: 8px; margin: 0; padding: 8px 10px; border: 2px solid var(--line); border-radius: 12px; font-weight: 700; cursor: pointer; min-height: 44px; }
+.modal form label.chk input { width: 20px; height: 20px; margin: 0; flex: none; }
+.modal form label.chk:has(input:checked) { border-color: var(--blue); background: #eaf1ff; }
+.item-name small { display: block; }
+select:disabled { background: #f1f4fa; color: #6b7694; cursor: not-allowed; }
+.check-grid { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+.modal form label.chk span { white-space: nowrap; }
