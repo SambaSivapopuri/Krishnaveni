@@ -3,6 +3,8 @@
   "use strict";
 
   var S = window.SCHOOL || {};
+  // site root, worked out from this script's own address (js/site.js -> ../)
+  var ROOT = document.currentScript ? new URL("../", document.currentScript.src).href : "";
 
   /* ---------- school details ([data-school="..."], [data-year]) ---------- */
   function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
@@ -53,7 +55,7 @@
     b.innerHTML =
       "<p><strong>Cookies and storage.</strong> This website does not use advertising or tracking cookies. " +
       "It only uses essential browser storage to work. Optional cookies stay off unless you accept them. " +
-      '<a href="cookies.html">Read the Cookie Policy</a>.</p>' +
+      '<a href="' + ROOT + 'cookies/">Read the Cookie Policy</a>.</p>' +
       '<div class="cookie-actions">' +
       '<button type="button" class="btn btn-small btn-ghost" data-consent="essential">Essential only</button>' +
       '<button type="button" class="btn btn-small btn-primary" data-consent="all">Accept optional</button>' +

@@ -4,6 +4,7 @@
 (function (w) {
   "use strict";
 
+  var ROOT = document.currentScript ? new URL("../", document.currentScript.src).href : "";
   var dbPromise = null;
   var blobUrls = [];
 
@@ -133,7 +134,7 @@
           return {
             id: b.id, title: m.title || b.title, author: b.author,
             category: m.category || b.category, grade: m.grade || b.grade, year: m.year || b.year || w.CURRENT_YEAR,
-            file: b.file, downloadName: null,
+            file: ROOT + b.file, downloadName: null,
             desc: m.desc != null ? m.desc : (b.desc || ""),
             source: "static", uploaded: false, hidden: !!m.hidden
           };
