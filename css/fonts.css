@@ -1,0 +1,10 @@
+/* Self-hosted fonts (Baloo 2 and Nunito, SIL Open Font License 1.1).
+   Hosted locally so visitors' browsers do not contact Google. */
+@font-face {
+  font-family: "Baloo 2"; font-style: normal; font-weight: 600 800; font-display: swap;
+  src: url("../vendor/fonts/baloo2-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Nunito"; font-style: normal; font-weight: 400 800; font-display: swap;
+  src: url("../vendor/fonts/nunito-latin.woff2") format("woff2");
+}

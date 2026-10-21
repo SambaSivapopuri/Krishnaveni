@@ -1,0 +1,76 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 353 >>
+stream
+BT /F2 26 Tf 60 760 Td (What is a Computer?) Tj ET
+BT /F1 14 Tf 60 720 Td 22 TL
+(A computer is a machine that helps us work faster. It can store) Tj T*
+(information, play games, show videos and help us learn. A computer has) Tj T*
+(a monitor, keyboard, mouse and CPU.) Tj T*
+ET
+BT /F1 10 Tf 60 30 Td (My First Computer Book - Page 1 - Sample book) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 345 >>
+stream
+BT /F2 26 Tf 60 760 Td (Input and Output) Tj ET
+BT /F1 14 Tf 60 720 Td 22 TL
+(The keyboard and mouse are input devices because we give information) Tj T*
+(to the computer with them. The monitor and printer are output devices) Tj T*
+(because they show results.) Tj T*
+ET
+BT /F1 10 Tf 60 30 Td (My First Computer Book - Page 2 - Sample book) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 353 >>
+stream
+BT /F2 26 Tf 60 760 Td (Stay Safe Online) Tj ET
+BT /F1 14 Tf 60 720 Td 22 TL
+(Never share your password with anyone. Ask a teacher or parent before) Tj T*
+(downloading anything. Be kind when you chat with others. Take a break) Tj T*
+(from the screen every 30 minutes.) Tj T*
+ET
+BT /F1 10 Tf 60 30 Td (My First Computer Book - Page 3 - Sample book) Tj ET
+endstream
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000127 00000 n 
+0000000197 00000 n 
+0000000272 00000 n 
+0000000408 00000 n 
+0000000812 00000 n 
+0000000948 00000 n 
+0000001344 00000 n 
+0000001481 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+1886
+%%EOF
